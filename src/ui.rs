@@ -89,7 +89,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .upper_section
                 .aces
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -97,7 +96,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .upper_section
                 .twos
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -105,7 +103,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .upper_section
                 .threes
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -113,7 +110,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .upper_section
                 .fours
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -121,7 +117,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .upper_section
                 .fives
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -129,31 +124,28 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .upper_section
                 .sixes
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
             "Total upper section without bonus: {}",
-            score.upper_section.score_without_bonus().to_string(),
+            score.upper_section.score_without_bonus(),
         )),
         list_item(format!(
             "Bonus: {}",
             score
                 .upper_section
                 .bonus
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
             "Total upper section: {}",
-            score.upper_section.total_score().to_string(),
+            score.upper_section.total_score(),
         )),
         list_item(format!(
             "Three of a kind: {}",
             score
                 .lower_section
                 .three_of_a_kind
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -161,7 +153,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .lower_section
                 .four_of_a_kind
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -169,7 +160,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .lower_section
                 .full_house
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -177,7 +167,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .lower_section
                 .small_straight
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -185,7 +174,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .lower_section
                 .large_straight
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -193,7 +181,6 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .lower_section
                 .yahtzee
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
@@ -201,14 +188,13 @@ fn render_score<'a>(score: &Score) -> List<'a> {
             score
                 .lower_section
                 .chance
-                .clone()
                 .map_or("-".to_string(), |v| v.to_string())
         )),
         list_item(format!(
             "Total lower section: {}",
-            score.lower_section.total_score().to_string(),
+            score.lower_section.total_score(),
         )),
-        list_item(format!("TOTAL SCORE: {}", score.total_score().to_string(),)),
+        list_item(format!("TOTAL SCORE: {}", score.total_score(),)),
     ]);
 
     List::new(items).block(scores).highlight_style(

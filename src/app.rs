@@ -72,86 +72,154 @@ impl AppState {
     }
 
     pub fn set_aces(&mut self) {
-        self.score.upper_section.set_aces(&self.dice_state.dice);
-        self.reset();
+        if self
+            .score
+            .upper_section
+            .set_aces(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_twos(&mut self) {
-        self.score.upper_section.set_twos(&self.dice_state.dice);
-        self.reset();
+        if self
+            .score
+            .upper_section
+            .set_twos(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_threes(&mut self) {
-        self.score.upper_section.set_threes(&self.dice_state.dice);
-        self.reset();
+        if self
+            .score
+            .upper_section
+            .set_threes(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_fours(&mut self) {
-        self.score.upper_section.set_fours(&self.dice_state.dice);
-        self.reset();
+        if self
+            .score
+            .upper_section
+            .set_fours(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_fives(&mut self) {
-        self.score.upper_section.set_fives(&self.dice_state.dice);
-        self.reset();
+        if self
+            .score
+            .upper_section
+            .set_fives(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_sixes(&mut self) {
-        self.score.upper_section.set_sixes(&self.dice_state.dice);
-        self.reset();
+        if self
+            .score
+            .upper_section
+            .set_sixes(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_three_of_a_kind(&mut self) {
-        self.score
+        if self
+            .score
             .lower_section
-            .set_three_of_a_kind(&self.dice_state.dice);
-        self.reset();
+            .set_three_of_a_kind(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_four_of_a_kind(&mut self) {
-        self.score
+        if self
+            .score
             .lower_section
-            .set_four_of_a_kind(&self.dice_state.dice);
-        self.reset();
+            .set_four_of_a_kind(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_full_house(&mut self) {
-        self.score
+        if self
+            .score
             .lower_section
-            .set_full_house(&self.dice_state.dice);
-        self.reset();
+            .set_full_house(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_small_straight(&mut self) {
-        self.score
+        if self
+            .score
             .lower_section
-            .set_small_straight(&self.dice_state.dice);
-        self.reset();
+            .set_small_straight(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_large_straight(&mut self) {
-        self.score
+        if self
+            .score
             .lower_section
-            .set_large_straight(&self.dice_state.dice);
-        self.reset();
+            .set_large_straight(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_yahtzee(&mut self) {
-        self.score.lower_section.set_yahtzee(&self.dice_state.dice);
-        self.reset();
+        if self
+            .score
+            .lower_section
+            .set_yahtzee(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 
     pub fn set_chance(&mut self) {
-        self.score.lower_section.set_chance(&self.dice_state.dice);
-        self.reset();
+        if self
+            .score
+            .lower_section
+            .set_chance(&self.dice_state.dice)
+            .is_ok()
+        {
+            self.reset();
+        };
     }
 }
 
 fn parse_selection_input_to_dice_indices(
     selection_input: &str,
 ) -> Result<Vec<usize>, ParseIntError> {
-    let index_strings: Vec<&str> = selection_input.split(",").collect();
-    index_strings
+    selection_input
+        .split(',')
         .into_iter()
         .map(|s| s.parse::<usize>())
         .collect()

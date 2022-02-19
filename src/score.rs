@@ -1,6 +1,11 @@
 use crate::dice::Dice;
 use std::collections::{HashMap, HashSet};
 
+#[derive(Debug)]
+pub(crate) enum ScoreError {
+    AlreadySet,
+}
+
 pub(crate) struct Score {
     pub upper_section: ScoreUpperSection,
     pub lower_section: ScoreLowerSection,
@@ -39,38 +44,58 @@ impl ScoreUpperSection {
         }
     }
 
-    pub fn set_aces(&mut self, dice_roll: &Dice) -> () {
-        let value = dice_roll.0.as_slice().iter().filter(|die| **die == 1).sum();
-        self.aces = self.aces.or(Some(value));
-    }
-
-    pub fn set_twos(&mut self, dice_roll: &Dice) -> () {
-        let value = dice_roll.0.as_slice().iter().filter(|die| **die == 2).sum();
-        self.twos = self.twos.or(Some(value));
-    }
-
-    pub fn set_threes(&mut self, dice_roll: &Dice) -> () {
-        let value = dice_roll.0.as_slice().iter().filter(|die| **die == 3).sum();
-        self.threes = self.threes.or(Some(value));
+    pub fn set_aces(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.aces.is_some() {
+            return Err(ScoreError::AlreadySet);
+        }
+        self.aces = Some(dice_roll.0.as_slice().iter().filter(|die| **die == 1).sum());
         self.check_and_set_bonus();
+        Ok(())
     }
 
-    pub fn set_fours(&mut self, dice_roll: &Dice) -> () {
-        let value = dice_roll.0.as_slice().iter().filter(|die| **die == 4).sum();
-        self.fours = self.fours.or(Some(value));
+    pub fn set_twos(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.twos.is_some() {
+            return Err(ScoreError::AlreadySet);
+        }
+        self.twos = Some(dice_roll.0.as_slice().iter().filter(|die| **die == 2).sum());
         self.check_and_set_bonus();
+        Ok(())
     }
 
-    pub fn set_fives(&mut self, dice_roll: &Dice) -> () {
-        let value = dice_roll.0.as_slice().iter().filter(|die| **die == 5).sum();
-        self.fives = self.fives.or(Some(value));
+    pub fn set_threes(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.threes.is_some() {
+            return Err(ScoreError::AlreadySet);
+        }
+        self.threes = Some(dice_roll.0.as_slice().iter().filter(|die| **die == 3).sum());
         self.check_and_set_bonus();
+        Ok(())
     }
 
-    pub fn set_sixes(&mut self, dice_roll: &Dice) -> () {
-        let value = dice_roll.0.as_slice().iter().filter(|die| **die == 6).sum();
-        self.sixes = self.sixes.or(Some(value));
+    pub fn set_fours(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.fours.is_some() {
+            return Err(ScoreError::AlreadySet);
+        }
+        self.fours = Some(dice_roll.0.as_slice().iter().filter(|die| **die == 4).sum());
         self.check_and_set_bonus();
+        Ok(())
+    }
+
+    pub fn set_fives(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.fives.is_some() {
+            return Err(ScoreError::AlreadySet);
+        }
+        self.fives = Some(dice_roll.0.as_slice().iter().filter(|die| **die == 5).sum());
+        self.check_and_set_bonus();
+        Ok(())
+    }
+
+    pub fn set_sixes(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.sixes.is_some() {
+            return Err(ScoreError::AlreadySet);
+        }
+        self.sixes = Some(dice_roll.0.as_slice().iter().filter(|die| **die == 6).sum());
+        self.check_and_set_bonus();
+        Ok(())
     }
 
     pub fn score_without_bonus(&self) -> u32 {
@@ -126,53 +151,92 @@ impl ScoreLowerSection {
         .sum()
     }
 
-    pub fn set_three_of_a_kind(&mut self, dice_roll: &Dice) -> () {
-        let frequencies = get_dice_frequencies(dice_roll.0.as_slice());
-        if frequencies.values().any(|count| *count >= 3) {
-            let value = dice_roll.0.as_slice().iter().sum();
-            self.three_of_a_kind = self.three_of_a_kind.or(Some(value));
+    pub fn set_three_of_a_kind(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.three_of_a_kind.is_some() {
+            return Err(ScoreError::AlreadySet);
         }
+        let frequencies = get_dice_frequencies(dice_roll.0.as_slice());
+        let value = if frequencies.values().any(|count| *count >= 3) {
+            dice_roll.0.as_slice().iter().sum()
+        } else {
+            0
+        };
+        self.three_of_a_kind = Some(value);
+        Ok(())
     }
 
-    // TODO set them all to 0 if wrong
-    pub fn set_four_of_a_kind(&mut self, dice_roll: &Dice) -> () {
-        let frequencies = get_dice_frequencies(dice_roll.0.as_slice());
-        if frequencies.values().any(|count| *count >= 4) {
-            let value = dice_roll.0.as_slice().iter().sum();
-            self.four_of_a_kind = self.four_of_a_kind.or(Some(value));
+    pub fn set_four_of_a_kind(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.four_of_a_kind.is_some() {
+            return Err(ScoreError::AlreadySet);
         }
+        let frequencies = get_dice_frequencies(dice_roll.0.as_slice());
+        let value = if frequencies.values().any(|count| *count >= 4) {
+            dice_roll.0.as_slice().iter().sum()
+        } else {
+            0
+        };
+        self.four_of_a_kind = Some(value);
+        Ok(())
     }
 
-    pub fn set_full_house(&mut self, dice_roll: &Dice) -> () {
+    pub fn set_full_house(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.full_house.is_some() {
+            return Err(ScoreError::AlreadySet);
+        }
         let frequencies = get_dice_frequencies(dice_roll.0.as_slice());
-        if frequencies.values().any(|count| *count == 3)
+        let value = if frequencies.values().any(|count| *count == 3)
             && frequencies.values().any(|count| *count == 2)
         {
-            self.full_house = Some(25);
-        }
+            25
+        } else {
+            0
+        };
+        self.full_house = Some(value);
+        Ok(())
     }
 
-    pub fn set_small_straight(&mut self, dice_roll: &Dice) -> () {
-        if has_at_least_n_consecutive_numbers(dice_roll.0.clone(), 4) {
-            self.small_straight = Some(30);
+    pub fn set_small_straight(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.small_straight.is_some() {
+            return Err(ScoreError::AlreadySet);
         }
+        let value = if has_at_least_n_consecutive_numbers(dice_roll.0.clone(), 4) {
+            30
+        } else {
+            0
+        };
+        self.small_straight = Some(value);
+        Ok(())
     }
 
-    pub fn set_large_straight(&mut self, dice_roll: &Dice) -> () {
-        if has_at_least_n_consecutive_numbers(dice_roll.0.clone(), 5) {
-            self.large_straight = Some(40);
+    pub fn set_large_straight(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.large_straight.is_some() {
+            return Err(ScoreError::AlreadySet);
         }
+        let value = if has_at_least_n_consecutive_numbers(dice_roll.0.clone(), 5) {
+            40
+        } else {
+            0
+        };
+        self.large_straight = Some(value);
+        Ok(())
     }
 
-    pub fn set_yahtzee(&mut self, dice_roll: &Dice) -> () {
-        if dice_roll.0.iter().collect::<HashSet<_>>().len() == 1 {
-            self.yahtzee = self.yahtzee.map_or_else(|| Some(50), |v| Some(v + 50));
-        }
+    pub fn set_yahtzee(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        let value = if dice_roll.0.iter().collect::<HashSet<_>>().len() == 1 {
+            self.yahtzee.map_or_else(|| Some(50), |v| Some(v + 50))
+        } else {
+            Some(0)
+        };
+        self.yahtzee = value;
+        Ok(())
     }
 
-    pub fn set_chance(&mut self, dice_roll: &Dice) -> () {
-        let value = dice_roll.0.as_slice().iter().sum();
-        self.chance = self.chance.or(Some(value));
+    pub fn set_chance(&mut self, dice_roll: &Dice) -> Result<(), ScoreError> {
+        if self.chance.is_some() {
+            return Err(ScoreError::AlreadySet);
+        }
+        self.chance = Some(dice_roll.0.as_slice().iter().sum());
+        Ok(())
     }
 }
 
@@ -184,14 +248,14 @@ fn get_dice_frequencies(dice_vec: &[u32]) -> HashMap<u32, i32> {
 }
 
 fn has_at_least_n_consecutive_numbers(mut rolls: Vec<u32>, n: u32) -> bool {
-    rolls.sort();
+    rolls.sort_unstable();
     let n_consecutive_increases = rolls.windows(2).fold(1, |mut consecutive_incr, window| {
         if let (Some(a), Some(b)) = (window.first(), window.last()) {
             if *a + 1 == *b {
                 // if two consecutive elements
                 consecutive_incr += 1;
             } else if *a == *b {
-                ()
+                //     do nothing
             } else if consecutive_incr < n {
                 // Break the streak if we haven't reached our minimum yet
                 consecutive_incr = 1
@@ -234,7 +298,7 @@ mod tests {
         #[case] expected_score: u32,
     ) {
         let mut score = ScoreLowerSection::new();
-        score.set_three_of_a_kind(&Dice(dice_input));
+        score.set_three_of_a_kind(&Dice(dice_input)).unwrap();
         assert_eq!(score.three_of_a_kind, Some(expected_score));
         assert_eq!(score.total_score(), expected_score);
     }
@@ -245,10 +309,10 @@ mod tests {
     #[case(vec![2, 5, 4, 4, 1])]
     #[case(vec![2, 5, 4, 4, 5])]
     #[case(vec![6, 5, 6, 4, 5])]
-    fn test_three_of_a_kind_fails_invalid_cases(#[case] dice_input: Vec<u32>) {
+    fn test_three_of_a_kind_sets_zero_invalid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_three_of_a_kind(&Dice(dice_input));
-        assert_eq!(score.three_of_a_kind, None);
+        score.set_three_of_a_kind(&Dice(dice_input)).unwrap();
+        assert_eq!(score.three_of_a_kind, Some(0));
         assert_eq!(score.total_score(), 0);
     }
 
@@ -264,7 +328,7 @@ mod tests {
         #[case] expected_score: u32,
     ) {
         let mut score = ScoreLowerSection::new();
-        score.set_four_of_a_kind(&Dice(dice_input));
+        score.set_four_of_a_kind(&Dice(dice_input)).unwrap();
         assert_eq!(score.four_of_a_kind, Some(expected_score));
         assert_eq!(score.total_score(), expected_score);
     }
@@ -275,10 +339,10 @@ mod tests {
     #[case(vec![2, 5, 4, 4, 4])]
     #[case(vec![2, 5, 4, 4, 5])]
     #[case(vec![6, 5, 6, 4, 5])]
-    fn test_four_of_a_kind_fails_invalid_cases(#[case] dice_input: Vec<u32>) {
+    fn test_four_of_a_kind_sets_zero_invalid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_four_of_a_kind(&Dice(dice_input));
-        assert_eq!(score.four_of_a_kind, None);
+        score.set_four_of_a_kind(&Dice(dice_input)).unwrap();
+        assert_eq!(score.four_of_a_kind, Some(0));
         assert_eq!(score.total_score(), 0);
     }
 
@@ -294,7 +358,7 @@ mod tests {
     #[case(vec![2, 3, 3, 4, 5])]
     fn test_small_straight_accepts_valid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_small_straight(&Dice(dice_input));
+        score.set_small_straight(&Dice(dice_input)).unwrap();
         assert_eq!(score.small_straight, Some(30));
         assert_eq!(score.total_score(), 30);
     }
@@ -305,10 +369,10 @@ mod tests {
     #[case(vec![1, 1, 1, 1, 1])]
     #[case(vec![5, 5, 6, 1, 1])]
     #[case(vec![6, 5, 4, 2, 1])]
-    fn test_small_straight_fails_invalid_cases(#[case] dice_input: Vec<u32>) {
+    fn test_small_straight_sets_zero_invalid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_small_straight(&Dice(dice_input));
-        assert_eq!(score.small_straight, None);
+        score.set_small_straight(&Dice(dice_input)).unwrap();
+        assert_eq!(score.small_straight, Some(0));
         assert_eq!(score.total_score(), 0);
     }
 
@@ -317,7 +381,7 @@ mod tests {
     #[case(vec![2, 3, 4, 5, 6])]
     fn test_large_straight_accepts_valid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_large_straight(&Dice(dice_input));
+        score.set_large_straight(&Dice(dice_input)).unwrap();
         assert_eq!(score.large_straight, Some(40));
         assert_eq!(score.total_score(), 40);
     }
@@ -328,10 +392,10 @@ mod tests {
     #[case(vec![1, 1, 1, 1, 1])]
     #[case(vec![5, 5, 6, 1, 1])]
     #[case(vec![6, 5, 4, 2, 1])]
-    fn test_large_straight_fails_invalid_cases(#[case] dice_input: Vec<u32>) {
+    fn test_large_straight_sets_zero_invalid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_large_straight(&Dice(dice_input));
-        assert_eq!(score.large_straight, None);
+        score.set_large_straight(&Dice(dice_input)).unwrap();
+        assert_eq!(score.large_straight, Some(0));
         assert_eq!(score.total_score(), 0);
     }
 
@@ -344,7 +408,7 @@ mod tests {
     #[case(vec![6, 2, 2, 6, 2])]
     fn test_full_house_accepts_valid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_full_house(&Dice(dice_input));
+        score.set_full_house(&Dice(dice_input)).unwrap();
         assert_eq!(score.full_house, Some(25));
         assert_eq!(score.total_score(), 25);
     }
@@ -355,10 +419,10 @@ mod tests {
     #[case(vec![3, 3, 3, 4, 5])]
     #[case(vec![3, 3, 4, 4, 5])]
     #[case(vec![6, 3, 4, 4, 5])]
-    fn test_full_house_fails_invalid_cases(#[case] dice_input: Vec<u32>) {
+    fn test_full_house_sets_zero_invalid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_full_house(&Dice(dice_input));
-        assert_eq!(score.full_house, None);
+        score.set_full_house(&Dice(dice_input)).unwrap();
+        assert_eq!(score.full_house, Some(0));
         assert_eq!(score.total_score(), 0);
     }
 
@@ -371,7 +435,7 @@ mod tests {
     #[case(vec![6, 6, 6, 6, 6])]
     fn test_yahtzee_accepts_valid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_yahtzee(&Dice(dice_input));
+        score.set_yahtzee(&Dice(dice_input)).unwrap();
         assert_eq!(score.yahtzee, Some(50));
         assert_eq!(score.total_score(), 50);
     }
@@ -382,10 +446,10 @@ mod tests {
     #[case(vec![5, 5, 6, 1, 1])]
     #[case(vec![6, 5, 4, 2, 1])]
     #[case(vec![1, 1, 1, 1, 2])]
-    fn test_yahtzee_fails_invalid_cases(#[case] dice_input: Vec<u32>) {
+    fn test_yahtzee_sets_zero_invalid_cases(#[case] dice_input: Vec<u32>) {
         let mut score = ScoreLowerSection::new();
-        score.set_yahtzee(&Dice(dice_input));
-        assert_eq!(score.yahtzee, None);
+        score.set_yahtzee(&Dice(dice_input)).unwrap();
+        assert_eq!(score.yahtzee, Some(0));
         assert_eq!(score.total_score(), 0);
     }
 
@@ -393,11 +457,11 @@ mod tests {
     fn test_yahtzee_multiple_works() {
         let mut score = ScoreLowerSection::new();
         let dice_input = Dice(vec![1, 1, 1, 1, 1]);
-        score.set_yahtzee(&dice_input);
+        score.set_yahtzee(&dice_input).unwrap();
         assert_eq!(score.yahtzee, Some(50));
         assert_eq!(score.total_score(), 50);
 
-        score.set_yahtzee(&dice_input);
+        score.set_yahtzee(&dice_input).unwrap();
         assert_eq!(score.yahtzee, Some(100));
         assert_eq!(score.total_score(), 100);
     }
