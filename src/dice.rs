@@ -66,7 +66,7 @@ impl DiceState {
         let allowed_dice_ids: HashSet<usize> = (0..self.number_of_dice).into_iter().collect();
         let is_selection_subset = dice_ids_to_reroll
             .iter()
-            .map(|v| *v)
+            .copied()
             .collect::<HashSet<_>>()
             .is_subset(&allowed_dice_ids);
 
